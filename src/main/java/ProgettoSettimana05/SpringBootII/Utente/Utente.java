@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,12 +17,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
-
+@Setter
 @NoArgsConstructor
 @Table(name = "utenti")
+@JsonIgnoreProperties({ "password", "accountNonExpired", "authorities", "credentialsNonExpired", "accountNonLocked" })
 public class Utente implements UserDetails {
 	@Id
 	@GeneratedValue
@@ -89,9 +93,6 @@ public class Utente implements UserDetails {
 				+ ", tipoUtente=" + tipoUtente + ", email=" + email + ", password=" + password + "]";
 	}
 
-	public String setPassword(String encode) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 }

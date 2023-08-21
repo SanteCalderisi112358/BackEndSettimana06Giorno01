@@ -18,6 +18,7 @@ import ProgettoSettimana05.SpringBootII.Security.AuthController;
 import ProgettoSettimana05.SpringBootII.Utente.NotUtenteFoundException;
 import ProgettoSettimana05.SpringBootII.Utente.TipoUtente;
 import ProgettoSettimana05.SpringBootII.Utente.Utente;
+import ProgettoSettimana05.SpringBootII.Utente.UtenteRepository;
 import ProgettoSettimana05.SpringBootII.Utente.UtenteRequestPayload;
 import ProgettoSettimana05.SpringBootII.Utente.UtenteService;
 
@@ -29,14 +30,37 @@ public class MainRunner implements CommandLineRunner {
 	DispositivoService dispositivoSrv;
 	@Autowired
 	AuthController authCtrl;
-
+	@Autowired
+	UtenteRepository utenteRepo;
 	@Autowired
 	PasswordEncoder bcrypt;
 
 	@Override
 	public void run(String... args) throws Exception {
 		Faker faker = new Faker(Locale.ITALIAN);
-		/* ISTANZIO 5 DIPENDENTI RANDOM CON FAKER E LI SALVO NEL DB */
+		/*
+		 * ISTANZIO 5 DIPENDENTI RANDOM CON FAKER E LI SALVO NEL DB CON PASSWORD HASHATA
+		 */
+		for (int i = 0; i < 5; i++) {
+			String name = faker.name().firstName();
+			String surname = faker.name().lastName();
+			String email = faker.internet().emailAddress();
+			String username = faker.lordOfTheRings().character();
+			String password = String.valueOf(faker.number().numberBetween(1000, 9999));
+			String passwordHash = bcrypt.encode(password);
+			TipoUtente tipoUtente = TipoUtente.values()[new Random().nextInt(TipoUtente.values().length)];
+			UtenteRequestPayload user = new UtenteRequestPayload(name, surname, username, email, passwordHash,
+					tipoUtente);
+			// System.err.println(user.toString());
+			// utenteSrv.create(user);
+
+
+		}
+
+		/*
+		 * ISTANZIO 5 DIPENDENTI RANDOM CON FAKER E LI SALVO NEL DB CON PASSWORD NON
+		 * HASHATA
+		 */
 		for (int i = 0; i < 5; i++) {
 			String name = faker.name().firstName();
 			String surname = faker.name().lastName();
@@ -47,12 +71,12 @@ public class MainRunner implements CommandLineRunner {
 			TipoUtente tipoUtente = TipoUtente.values()[new Random().nextInt(TipoUtente.values().length)];
 			UtenteRequestPayload user = new UtenteRequestPayload(name, surname, username, email, password, tipoUtente);
 			// System.err.println(user.toString());
-			// authCtrl.saveUser(user);
-
+			// utenteSrv.create(user);
 
 		}
 
-		System.err.println(bcrypt.encode("ciao"));
+
+
 		/*
 		 * INIZIALIZZAZIONE 10 SMARTPHONE, 10 LAPTOT E 10 TABLET E LI SALVO NEL DB il
 		 * loro numero è inferiore rispetto a quello voluto a causa dei controlli in
@@ -63,24 +87,20 @@ public class MainRunner implements CommandLineRunner {
 		 * di loro ad un dispositivo
 		 */
 		List<Utente> listaUtenti = utenteSrv.findNoPage();
-		System.err.println("DIPENDENTI");
+		// System.err.println("DIPENDENTI");
 		listaUtenti.forEach(u -> {
 			if (u.getPassword().length() > 50) {
-				System.out
-						.println("La password dell'utente " + u.getNome() + " " + u.getCognome() + " è già hashata.");
+				System.out.println("La password dell'utente " + u.getNome() + " " + u.getCognome() + " è già sicura.");
 			} else {
-				String nome = u.getNome();
-				String cognome = u.getCognome();
-				String email = u.getEmail();
-				String username = u.getUsername();
-				TipoUtente tipoUtente = u.getTipoUtente();
-				String password = (String) u.setPassword(bcrypt.encode(u.getPassword()));
-				UtenteRequestPayload user = new UtenteRequestPayload(nome, cognome, username, email,
-						password, tipoUtente);
-				authCtrl.saveUser(user);
+
+				Utente utente = utenteSrv.findById(u.getId());
+				utente.setPassword(bcrypt.encode(utente.getPassword()));
+				utenteRepo.save(utente);
+
 				System.out.println("La password dell'utente " + u.getNome() + " " + u.getCognome()
-						+ " è stata hashata.");
+						+ " è stata messa in sicurezza.");
 			}
+
 		});
 
 		/* 10 SMARTPHONE */
