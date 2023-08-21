@@ -2,18 +2,23 @@ package ProgettoSettimana05.SpringBootII;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.github.javafaker.Faker;
 
 import ProgettoSettimana05.SpringBootII.Dispositivo.DispositivoService;
 import ProgettoSettimana05.SpringBootII.Dispositivo.NotFoundDispositivoException;
+import ProgettoSettimana05.SpringBootII.Security.AuthController;
 import ProgettoSettimana05.SpringBootII.Utente.NotUtenteFoundException;
+import ProgettoSettimana05.SpringBootII.Utente.TipoUtente;
 import ProgettoSettimana05.SpringBootII.Utente.Utente;
+import ProgettoSettimana05.SpringBootII.Utente.UtenteRequestPayload;
 import ProgettoSettimana05.SpringBootII.Utente.UtenteService;
 
 @Component
@@ -22,23 +27,32 @@ public class MainRunner implements CommandLineRunner {
 	UtenteService utenteSrv;
 	@Autowired
 	DispositivoService dispositivoSrv;
+	@Autowired
+	AuthController authCtrl;
+
+	@Autowired
+	PasswordEncoder bcrypt;
 
 	@Override
 	public void run(String... args) throws Exception {
 		Faker faker = new Faker(Locale.ITALIAN);
 		/* ISTANZIO 5 DIPENDENTI RANDOM CON FAKER E LI SALVO NEL DB */
-//		for (int i = 0; i < 5; i++) {
-//			String name = faker.name().firstName();
-//			String surname = faker.name().lastName();
-//			String email = faker.internet().emailAddress();
-//			String username = faker.lordOfTheRings().character();
-//			String password = String.valueOf(faker.number().numberBetween(1000, 9999));
-//			TipoUtente tipoUtente = TipoUtente.values()[new Random().nextInt(TipoUtente.values().length)];
-//			UtenteRequestPayload user = new UtenteRequestPayload(name, surname, username, email, password, tipoUtente);
-//			System.err.println(user.toString());
-//			utenteSrv.create(user);
-//
-//		}
+		for (int i = 0; i < 5; i++) {
+			String name = faker.name().firstName();
+			String surname = faker.name().lastName();
+			String email = faker.internet().emailAddress();
+			String username = faker.lordOfTheRings().character();
+			String password = String.valueOf(faker.number().numberBetween(1000, 9999));
+
+			TipoUtente tipoUtente = TipoUtente.values()[new Random().nextInt(TipoUtente.values().length)];
+			UtenteRequestPayload user = new UtenteRequestPayload(name, surname, username, email, password, tipoUtente);
+			// System.err.println(user.toString());
+			authCtrl.saveUser(user);
+
+
+		}
+
+		System.err.println(bcrypt.encode("ciao"));
 		/*
 		 * INIZIALIZZAZIONE 10 SMARTPHONE, 10 LAPTOT E 10 TABLET E LI SALVO NEL DB il
 		 * loro numero è inferiore rispetto a quello voluto a causa dei controlli in
@@ -50,7 +64,7 @@ public class MainRunner implements CommandLineRunner {
 		 */
 		List<Utente> listaUtenti = utenteSrv.findNoPage();
 		System.err.println("DIPENDENTI");
-		listaUtenti.forEach(u -> System.err.println(u));
+		// 7listaUtenti.forEach(u -> System.err.println(u));
 		/* 10 SMARTPHONE */
 //		for (int i = 0; i < 10; i++) {
 //			String nome = faker.backToTheFuture().character();
@@ -110,6 +124,8 @@ public class MainRunner implements CommandLineRunner {
 		} catch (NotUtenteFoundException ex) {
 			System.err.println(ex.getMessage());
 		}
+
+
 
 	}
 
