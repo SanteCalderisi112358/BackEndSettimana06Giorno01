@@ -47,7 +47,7 @@ public class MainRunner implements CommandLineRunner {
 			TipoUtente tipoUtente = TipoUtente.values()[new Random().nextInt(TipoUtente.values().length)];
 			UtenteRequestPayload user = new UtenteRequestPayload(name, surname, username, email, password, tipoUtente);
 			// System.err.println(user.toString());
-			authCtrl.saveUser(user);
+			// authCtrl.saveUser(user);
 
 
 		}
@@ -64,7 +64,25 @@ public class MainRunner implements CommandLineRunner {
 		 */
 		List<Utente> listaUtenti = utenteSrv.findNoPage();
 		System.err.println("DIPENDENTI");
-		// 7listaUtenti.forEach(u -> System.err.println(u));
+		listaUtenti.forEach(u -> {
+			if (u.getPassword().length() > 50) {
+				System.out
+						.println("La password dell'utente " + u.getNome() + " " + u.getCognome() + " è già hashata.");
+			} else {
+				String nome = u.getNome();
+				String cognome = u.getCognome();
+				String email = u.getEmail();
+				String username = u.getUsername();
+				TipoUtente tipoUtente = u.getTipoUtente();
+				String password = (String) u.setPassword(bcrypt.encode(u.getPassword()));
+				UtenteRequestPayload user = new UtenteRequestPayload(nome, cognome, username, email,
+						password, tipoUtente);
+				authCtrl.saveUser(user);
+				System.out.println("La password dell'utente " + u.getNome() + " " + u.getCognome()
+						+ " è stata hashata.");
+			}
+		});
+
 		/* 10 SMARTPHONE */
 //		for (int i = 0; i < 10; i++) {
 //			String nome = faker.backToTheFuture().character();

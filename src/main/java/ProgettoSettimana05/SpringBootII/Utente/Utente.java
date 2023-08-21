@@ -15,11 +15,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
+
 @NoArgsConstructor
 @Table(name = "utenti")
 public class Utente implements UserDetails {
@@ -88,6 +87,11 @@ public class Utente implements UserDetails {
 	public String toString() {
 		return "Utente [id=" + id + ", nome=" + nome + ", cognome=" + cognome + ", username=" + username
 				+ ", tipoUtente=" + tipoUtente + ", email=" + email + ", password=" + password + "]";
+	}
+
+	public String setPassword(String encode) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
